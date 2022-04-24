@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import excepciones.ContraseniaIncorrectaException;
 import excepciones.UsuarioExistenteException;
-import excepciones.UsuarioInexistenteException;
 
 public class PManager {
 	private static PManager _instancia=null;
@@ -28,28 +27,28 @@ public class PManager {
 	 usuarios.add(usuario);
 	}
 	
-	public boolean login(String username, String password) throws UsuarioInexistenteException,ContraseniaIncorrectaException{
-		if (usuarios==null) {
-			throw new UsuarioInexistenteException("Usuario inexistente");
-		}
-		else {
+	public User login(String username, String password) throws ContraseniaIncorrectaException{
 			for (int i=0;i<usuarios.size();i++) {
 				if (usuarios.get(i).getUsername().equals(username))
-					if ( usuarios.get(i).getPassword().equals(password))
-						return true;
+					if ( usuarios.get(i).login(password))
+						return this.usuarios.get(i);
 					else
-						throw new ContraseniaIncorrectaException("Usuario y/o contrasenia incorrectas");
+						break;
 			}
-		}
-	return false;
-	}
-	public User getUser(String username, String password) {
+			throw new ContraseniaIncorrectaException("Usuario y/o contrasenia incorrectas");
+}
+/*	public User getUser(String username, String password) {
+		User user=null;
 		for (int i=0;i<usuarios.size();i++) {
 		 if (usuarios.get(i).getUsername().equals(username))
 			if ( usuarios.get(i).getPassword().equals(password))
-				return usuarios.get(i);
+				user=usuarios.get(i);
 		
 	}
+		return user;
+}*/
+	private User getUserByUsername(String username) {
+		
 		return null;
-}
+	}
 }

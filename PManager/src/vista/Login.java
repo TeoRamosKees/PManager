@@ -21,7 +21,6 @@ import javax.swing.border.EmptyBorder;
 
 import excepciones.ContraseniaIncorrectaException;
 import excepciones.UsuarioExistenteException;
-import excepciones.UsuarioInexistenteException;
 import modelo.PManager;
 import modelo.User;
 
@@ -73,7 +72,7 @@ public class Login extends JFrame implements ActionListener {
 	 */
 	public Login() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 618, 529);
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(this.contentPane);
@@ -191,33 +190,23 @@ public class Login extends JFrame implements ActionListener {
 			} catch (HeadlessException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (UsuarioInexistenteException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ContraseniaIncorrectaException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
 			}
 		else if (e.getActionCommand().equals("Register")) this.register();
 		
 	}
 
-	private void login() throws HeadlessException, UsuarioInexistenteException, ContraseniaIncorrectaException {
+	private void login(){
 		// TODO Auto-generated method stub
 		String username=this.textField.getText();
 		String password=this.passwordField.getText();
-		if (PManager.getInstancia().login(username, password)) {
-			User user=PManager.getInstancia().getUser(username, password);
-			Menu menu=new Menu(user);
-			this.dispose();
-			menu.setVisible(true);
-			
-		}else {
-			JOptionPane.showMessageDialog(null, "Login fail"+"\n"+"Username does not exist or wrong password", username, JOptionPane.PLAIN_MESSAGE);
+		try {		
+		 User user=PManager.getInstancia().login(username, password);
+		 Menu menu=new Menu(user);
+		 this.dispose();
+		 menu.setVisible(true);		
+		}catch(ContraseniaIncorrectaException e) {
+			JOptionPane.showMessageDialog(null, "Login failure"+"\n"+"Username or Password Incorrect", username, JOptionPane.PLAIN_MESSAGE);
 		}
-		
-		
-		
 	}
 
 	private void register() {
@@ -228,8 +217,10 @@ public class Login extends JFrame implements ActionListener {
 		
 		try {
 			PManager.getInstancia().agregarUsuario(usuario);
+			JOptionPane.showMessageDialog(null, "Registration completed", username, JOptionPane.PLAIN_MESSAGE);
 		} catch (UsuarioExistenteException e) {
 			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, "Registration failure"+"\n"+"Username already exist", username, JOptionPane.PLAIN_MESSAGE);
 			e.printStackTrace();
 		}
 		

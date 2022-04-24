@@ -2,8 +2,10 @@ package vista;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Iterator;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
@@ -11,7 +13,9 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -19,10 +23,6 @@ import javax.swing.border.TitledBorder;
 
 import modelo.Cuenta;
 import modelo.User;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JTextPane;
 
 public class Menu extends JFrame implements ActionListener {
 
@@ -63,7 +63,11 @@ public class Menu extends JFrame implements ActionListener {
 	private DefaultListModel<Cuenta> modeloLista;
 	private JButton btnNewButton_2;
 	private User usuarioLogueado;
-	private JTextPane textPane;
+	private JScrollPane scrollPane;
+	private JList list;
+	private JPanel panel_23;
+	private JPanel panel_24;
+	private JButton btnNewButton_3;
 
 	/**
 	 * Launch the application.
@@ -76,7 +80,7 @@ public class Menu extends JFrame implements ActionListener {
 	public Menu(User user) {
 		this.usuarioLogueado=user;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 618, 529);
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(this.contentPane);
@@ -107,6 +111,15 @@ public class Menu extends JFrame implements ActionListener {
 		this.btnNewButton = new JButton("Search");
 		this.btnNewButton.addActionListener(this);
 		this.panel_4.add(this.btnNewButton);
+		
+		this.panel_24 = new JPanel();
+		this.panel_24.setBorder(new TitledBorder(null, "LogOut", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		this.panel_24.setBackground(Color.LIGHT_GRAY);
+		this.panel_1.add(this.panel_24);
+		
+		this.btnNewButton_3 = new JButton("Log out");
+		this.btnNewButton_3.addActionListener(this);
+		this.panel_24.add(this.btnNewButton_3);
 		
 		this.panel_2 = new JPanel();
 		this.panel_2.setBackground(Color.LIGHT_GRAY);
@@ -223,58 +236,92 @@ public class Menu extends JFrame implements ActionListener {
 		this.btnNewButton_1.addActionListener(this);
 		this.panel_18.add(this.btnNewButton_1);
 		
+		this.panel_23 = new JPanel();
+		this.panel_23.setBackground(Color.LIGHT_GRAY);
+		this.panel_17.add(this.panel_23);
+		
 		this.btnNewButton_2 = new JButton("Delete");
+		this.panel_23.add(this.btnNewButton_2);
 		this.btnNewButton_2.addActionListener(this);
-		this.panel_17.add(this.btnNewButton_2);
 		
 		this.panel_3 = new JPanel();
 		this.panel_3.setBackground(Color.LIGHT_GRAY);
 		this.panel.add(this.panel_3);
 		this.panel_3.setLayout(new BorderLayout(0, 0));
 		
-		this.textPane = new JTextPane();
-		this.panel_3.add(this.textPane, BorderLayout.CENTER);
+		this.scrollPane = new JScrollPane();
+		this.panel_3.add(this.scrollPane, BorderLayout.CENTER);
+		
+		this.list = new JList();
+		this.scrollPane.setViewportView(this.list);
 		
 		this.modeloLista= new DefaultListModel<Cuenta>();
+		this.list.setModel(modeloLista);
 	}
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("Search")) this.searchCuenta();
 		if (e.getActionCommand().equals("Add")) this.addCuenta();
 		if (e.getActionCommand().equals("Delete")) this.deleteCuenta();
+		if (e.getActionCommand().equals("Log out")) this.logOut();
+	}
+
+	private void logOut() {
+		// TODO Auto-generated method stub
+		this.dispose();
+		Login login = new Login();
+		login.setVisible(true);		
 	}
 
 	private void deleteCuenta() {
 		// TODO Auto-generated method stub
-		this.list.getSelectedValue();
+		Cuenta cuenta = (Cuenta) this.list.getSelectedValue();
+		if (cuenta != null)
+			this.usuarioLogueado.eliminarCuenta(cuenta);
+		else
+			JOptionPane.showMessageDialog(this, "Must choose something to delete");
+		JOptionPane.showMessageDialog(this, "Delete succesfull of:"+"\n"+cuenta.toString());
+		this.searchCuenta();
 		
 	}
 
 	private void addCuenta() {
 		// TODO Auto-generated method stub
-		
+		String tipo=this.comboBox_1.getSelectedItem().toString();
+		String loginid=this.textField.getText();
+		String password=this.textField_1.getText();
+		String desc=this.textField_2.getText();
+		Cuenta cuenta=new Cuenta(loginid,password,desc,tipo);
+		this.usuarioLogueado.agregarCuenta(cuenta);
+		JOptionPane.showMessageDialog(this, "Added Succesfully"+"\n"+cuenta.toString());
 	}
 
 	private void searchCuenta() {
 		// TODO Auto-generated method stub
-		String tipo=this.comboBox.getToolTipText();
+		this.modeloLista.clear();
+		String tipo=this.comboBox.getSelectedItem().toString();
+		Iterator<Cuenta> cuentas=null;
 		switch(tipo) {
 		case "All":
-			(this.usuarioLogueado.mostrarTodasCuentas());			
+			cuentas=this.usuarioLogueado.getAll();
 			break;
 		case "Social":
-			this.usuarioLogueado.mostrarSocial();			
+			cuentas=this.usuarioLogueado.getSocial();
 			break;
 		case "Education":
-			this.usuarioLogueado.mostrarEducation();			
+			cuentas=this.usuarioLogueado.getEducation();	
 			break;
 		case "Work":
-			this.usuarioLogueado.mostrarWork();			
+			cuentas=this.usuarioLogueado.getWork();
 			break;
 		case "Other":
-			this.usuarioLogueado.mostrarOther();			
+			cuentas=this.usuarioLogueado.getOther();
 			break;
 		}
+		while (cuentas.hasNext()) {
+			this.modeloLista.addElement(cuentas.next());
+		}
+		this.repaint();
 		
 	}
 }
